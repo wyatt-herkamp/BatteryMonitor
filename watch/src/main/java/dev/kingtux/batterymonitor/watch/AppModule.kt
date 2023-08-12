@@ -7,7 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.kingtux.common.DeviceType
-import dev.kingtux.common.SmallDevice
+import dev.kingtux.common.SharedDevice
 import javax.inject.Singleton
 
 @Module
@@ -18,7 +18,7 @@ class DevicesStore {
     @Provides
     fun providesDevices(@ApplicationContext application: Context): Devices {
         return Devices(
-            SmallDevice(0,android.os.Build.PRODUCT,50, DeviceType.Watch),
+            SharedDevice(0,android.os.Build.PRODUCT,50, DeviceType.Watch),
             null,
             null,
             null
@@ -27,13 +27,13 @@ class DevicesStore {
 }
 
 data class Devices (
-     var watch: SmallDevice,
-     var deviceOne: SmallDevice?,
-     var deviceTwo: SmallDevice?,
-     var deviceThree: SmallDevice?
+    var watch: SharedDevice,
+    var deviceOne: SharedDevice?,
+    var deviceTwo: SharedDevice?,
+    var deviceThree: SharedDevice?
 ){
 
-    fun getComplicationDevice(): SmallDevice?{
+    fun getComplicationDevice(): SharedDevice?{
         return if (deviceTwo != null){
             deviceTwo
         }else if (deviceOne != null){

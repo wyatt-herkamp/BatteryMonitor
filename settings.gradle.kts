@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Battery Monitor"
+
 include(":common")
 include(":app")
 include(":watch")

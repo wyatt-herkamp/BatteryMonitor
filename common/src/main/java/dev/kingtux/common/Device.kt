@@ -1,86 +1,93 @@
 package dev.kingtux.common
 
-import com.google.gson.Gson
-import java.io.File
-data class SavedDevice(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import java.io.FileReader
+import java.nio.file.Path
+import kotlin.io.path.exists
+@Parcelize
+data class DeviceMessage(
+    val deviceOne: SharedDevice?,
+    val deviceTwo: SharedDevice?,
+    val phone: SharedDevice?
+) :  Parcelable
+@Serializable
+data class DeviceConfiguration(
     val address: String,
     var deviceType: DeviceType,
     var enabled: Boolean,
     var priority: Int
-)
+){
+    override fun equals(other: Any?): Boolean {
+        if (other !is DeviceConfiguration) {
+            return false
+        }
+        return other.address == address
+    }
+    fun saveDevice(directory: Path) {
+        val devicesPath = directory.resolve("devices");
+        if (!devicesPath.exists()) {
+            devicesPath.toFile().mkdirs()
+        }
+        val file = devicesPath.resolve("$address.json").toFile()
+        val encodeToString = Json.encodeToString(this)
+        file.writeText(encodeToString)
+    }
 
+    override fun hashCode(): Int {
+        var result = address.hashCode()
+        result = 31 * result + deviceType.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + priority
+        return result
+    }
+
+    companion object {
+        fun loadDevice(
+            directory: Path,
+            address: String,
+        ): DeviceConfiguration {
+            val path = directory.resolve("devices").resolve("$address.json")
+            return if (!path.exists()) {
+                DeviceConfiguration(
+                    address,
+                    DeviceType.Other,
+                    true,
+                    2
+                )
+            } else {
+                val file = path.toFile()
+                Json.decodeFromString<DeviceConfiguration>(file.readText())
+            }
+
+        }
+    }
+}
 
 data class Device(
     val priority: Int,
     val name: String,
-    val batteryLevel: Int,
+    var batteryLevel: Int,
     var deviceType: DeviceType,
-    val isConnected: Boolean,
+    var isConnected: Boolean,
     val address: String,
     var enabled: Boolean
-)
-
-
-
-data class Settings(
-    var sendPhone: Boolean,
-    val devices: List<SavedDevice>
 ){
-    init {
-        // Only The Phone can be priority 0
-        devices.forEach {
-            if(it.priority == 0 && it.deviceType != DeviceType.Phone){
-                it.priority = 1
-            }
-        }
+    fun toSharedDevice(): SharedDevice{
+        return SharedDevice(priority, name, batteryLevel, deviceType)
+    }
+    fun toDeviceConfiguration(): DeviceConfiguration{
+        return DeviceConfiguration(address, deviceType, enabled, priority)
     }
 }
-
- fun getSettings(file: File): Settings{
-    val settings: Settings = if (file.exists()) {
-        val json = file.readText()
-        val gson = Gson()
-        gson.fromJson(json, Settings::class.java)
-    } else {
-        Settings(true, emptyList())
-    }
-    return settings
-}
-fun updateSettings(device: Device, file: File) {
-    val settings: Settings = if (file.exists()) {
-        val json = file.readText()
-        val gson = Gson()
-        gson.fromJson(json, Settings::class.java).let { settings ->
-            val savedDevices = settings.devices.toMutableList()
-            savedDevices.removeIf { it.address == device.address }
-            savedDevices.add(
-                SavedDevice(
-                    device.address,
-                    device.deviceType,
-                    device.enabled,
-                    device.priority
-                )
-            );
-            Settings(settings.sendPhone, savedDevices)
-        }
-    } else {
-        Settings(true, listOf(
-            SavedDevice(
-                device.address,
-                device.deviceType,
-                device.enabled,
-                device.priority
-            )
-        ))
-    }
-    val gson = Gson()
-    val json = gson.toJson(settings)
-    file.writeText(json)
-}
-
-data class SmallDevice(
+@Parcelize
+data class SharedDevice(
     val priority: Int,
     val name: String,
     var batteryLevel: Int,
     val deviceType: DeviceType,
-)
+) : Parcelable

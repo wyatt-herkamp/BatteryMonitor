@@ -1,8 +1,6 @@
 package dev.kingtux.batterymonitor.watch.tile
 
 import android.content.Context
-import android.graphics.ColorSpace.Rgb
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +26,7 @@ import androidx.wear.protolayout.material.Typography
 import androidx.wear.protolayout.material.layouts.PrimaryLayout
 import com.google.android.horologist.compose.tools.TileLayoutPreview
 import dev.kingtux.common.DeviceType
-import dev.kingtux.common.SmallDevice
+import dev.kingtux.common.SharedDevice
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.ResourceBuilders.Resources
 import dev.kingtux.batterymonitor.watch.R
@@ -37,10 +35,10 @@ class BatteryPercentTileRenderer(context: Context) :
     SingleTileLayoutRenderer<BatteryPercentTileRenderer.TileData, Unit>(context) {
 
     data class TileData(
-        val watch: SmallDevice,
-        val deviceOne: SmallDevice?,
-        val deviceTwo: SmallDevice?,
-        val deviceThree: SmallDevice?
+        val watch: SharedDevice,
+        val deviceOne: SharedDevice?,
+        val deviceTwo: SharedDevice?,
+        val deviceThree: SharedDevice?
     )
 
     override fun Resources.Builder.produceRequestedResources(
@@ -153,7 +151,7 @@ class BatteryPercentTileRenderer(context: Context) :
     }.build()
 
     private fun deviceRow(
-        deviceOne: SmallDevice?, deviceTwo: SmallDevice?, numberOfDevices: Int
+        deviceOne: SharedDevice?, deviceTwo: SharedDevice?, numberOfDevices: Int
     ) = LayoutElementBuilders.Row.Builder().apply {
 
         deviceOne?.let {
@@ -169,7 +167,7 @@ class BatteryPercentTileRenderer(context: Context) :
     }
 
     private fun batteryPercentage(
-        device: SmallDevice, numberOfDevices: Int = 4
+        device: SharedDevice, numberOfDevices: Int = 4
     ) = LayoutElementBuilders.Box.Builder().apply {
         val circleSize = when (numberOfDevices) {
             4 -> {
@@ -274,7 +272,7 @@ fun PreviewOne() {
     }
     TileLayoutPreview(
         BatteryPercentTileRenderer.TileData(
-            SmallDevice(0,"Watch", 70, DeviceType.Watch),
+            SharedDevice(0,"Watch", 70, DeviceType.Watch),
             null, null,
             null
         ), Unit, renderer
@@ -297,8 +295,8 @@ fun PreviewTwoDevices() {
     }
     TileLayoutPreview(
         BatteryPercentTileRenderer.TileData(
-            SmallDevice(0,"Watch", 70, DeviceType.Watch),
-            SmallDevice(0,"Phone", 80, DeviceType.Phone),
+            SharedDevice(0,"Watch", 70, DeviceType.Watch),
+            SharedDevice(0,"Phone", 80, DeviceType.Phone),
             null,
             null
         ), Unit, renderer
@@ -321,10 +319,10 @@ fun PreviewFourDevices() {
     }
     TileLayoutPreview(
         BatteryPercentTileRenderer.TileData(
-            SmallDevice(0,"Watch", 100, DeviceType.Watch),
-            SmallDevice(0,"Phone", 80, DeviceType.Phone),
-            SmallDevice(0,"Headphones", 80, DeviceType.Headphones),
-            SmallDevice(0,"Glasses", 20, DeviceType.Glasses),
+            SharedDevice(0,"Watch", 100, DeviceType.Watch),
+            SharedDevice(0,"Phone", 80, DeviceType.Phone),
+            SharedDevice(0,"Headphones", 80, DeviceType.Headphones),
+            SharedDevice(0,"Glasses", 20, DeviceType.Glasses),
         ), Unit, renderer
     )
 

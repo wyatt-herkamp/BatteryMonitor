@@ -8,8 +8,6 @@ import android.content.IntentFilter
 import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
 import dev.kingtux.batterymonitor.watch.tile.MainTileService
-import dev.kingtux.common.DeviceType
-import dev.kingtux.common.SmallDevice
 import javax.inject.Inject
 
 @HiltAndroidApp

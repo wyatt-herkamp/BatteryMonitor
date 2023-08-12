@@ -1,6 +1,7 @@
 package dev.kingtux.batterymonitor.phone
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -8,8 +9,8 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import dev.kingtux.common.Device
-import dev.kingtux.common.DeviceType
-import dev.kingtux.common.Settings
+import dev.kingtux.common.DeviceConfiguration
+
 
 val BluetoothDevice.batteryLevel
     get() = this.let { device ->
@@ -22,12 +23,38 @@ val BluetoothDevice.isConnected
         method.invoke(device) as Boolean
     } ?: false
 
-class BluetoothUtils {
+@SuppressLint("MissingPermission")
+fun DeviceConfiguration.toDevice(bluetoothDevice: BluetoothDevice): Device {
+    return Device(
+        priority = priority,
+        name = bluetoothDevice.name,
+        batteryLevel = bluetoothDevice.batteryLevel,
+        deviceType = deviceType,
+        isConnected = bluetoothDevice.isConnected,
+        address = bluetoothDevice.address,
+        enabled = enabled
+    )
+}
 
+fun Device.refreshDevice(bluetoothManager: BluetoothManager): Boolean {
+
+    val remoteDevice = bluetoothManager.adapter.getRemoteDevice(address)
+    val batteryLevel = remoteDevice.batteryLevel
+    val isConnected = remoteDevice.isConnected
+    return if (batteryLevel != this.batteryLevel || isConnected != this.isConnected) {
+        this.batteryLevel = batteryLevel
+        this.isConnected = isConnected
+        true
+    }else{
+        false
+    }
+}
+
+class BluetoothUtils {
     companion object {
         private const val tag = "BluetoothUtils"
 
-        fun getDevices(applicationContext: Context, settings: Settings): List<Device> {
+        fun getDevices(applicationContext: Context): List<Device> {
             val devices = mutableListOf<Device>()
 
             val systemService: BluetoothManager? =
@@ -40,37 +67,14 @@ class BluetoothUtils {
                     Log.d(tag, "Grabbing devices")
                     // Get a list of currently connected devices
                     for (bondedDevice: BluetoothDevice in systemService.adapter.bondedDevices) {
-                        val connectionState = bondedDevice.isConnected;
-                        val deviceName = bondedDevice.name;
-                        val blueToothBatteryLevel = bondedDevice.batteryLevel;
-                        settings.devices.find { it.address == bondedDevice.address }.let {
-                            if (it != null) {
-                                devices.add(
-                                    Device(
-                                        priority = it.priority,
-                                        deviceName,
-                                        blueToothBatteryLevel,
-                                        it.deviceType,
-                                        connectionState,
-                                        bondedDevice.address,
-                                        it.enabled
-
-                                    )
-                                )
-                            } else {
-                                devices.add(
-                                    Device(
-                                        priority = 1,
-                                        deviceName,
-                                        blueToothBatteryLevel,
-                                        DeviceType.Other,
-                                        connectionState,
-                                        bondedDevice.address,
-                                        true
-                                    )
-                                )
-                            }
-                        }
+                        Log.d(tag, "getDevices: $bondedDevice")
+                        val deviceConfiguration =
+                            DeviceConfiguration.loadDevice(
+                                applicationContext.filesDir.toPath(),
+                                bondedDevice.address
+                            )
+                        val device = deviceConfiguration.toDevice(bondedDevice)
+                        devices.add(device)
                     }
                 } else {
                     Log.d(tag, "onCreate: No permission")

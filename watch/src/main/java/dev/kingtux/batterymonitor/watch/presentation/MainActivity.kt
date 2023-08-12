@@ -13,15 +13,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
@@ -36,12 +33,11 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
-import androidx.wear.protolayout.DimensionBuilders
 import dagger.hilt.android.AndroidEntryPoint
 import dev.kingtux.batterymonitor.watch.Devices
 import dev.kingtux.batterymonitor.watch.presentation.theme.BatteryMonitorTheme
 import dev.kingtux.common.DeviceType
-import dev.kingtux.common.SmallDevice
+import dev.kingtux.common.SharedDevice
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -115,7 +111,7 @@ fun WearApp(devices: Devices) {
 }
 
 @Composable
-fun BatteryLevel(device: SmallDevice, numberOfDevices: Int = 1) {
+fun BatteryLevel(device: SharedDevice, numberOfDevices: Int = 1) {
     val sizes = when (numberOfDevices) {
         4 -> {
             Pair(50.dp, 20.dp)
@@ -199,7 +195,7 @@ fun BatteryLevel(device: SmallDevice, numberOfDevices: Int = 1) {
 fun DefaultPreview() {
     WearApp(
         Devices(
-            SmallDevice(1, "Watch", 100, DeviceType.Watch), null, null, null
+            SharedDevice(1, "Watch", 100, DeviceType.Watch), null, null, null
         )
     )
 }
@@ -209,8 +205,8 @@ fun DefaultPreview() {
 fun TwoDevices() {
     WearApp(
         Devices(
-            SmallDevice(1, "Watch", 100, DeviceType.Watch),
-            SmallDevice(1, "Phone", 80, DeviceType.Phone),
+            SharedDevice(1, "Watch", 100, DeviceType.Watch),
+            SharedDevice(1, "Phone", 80, DeviceType.Phone),
             null,
             null
         )
@@ -222,9 +218,9 @@ fun TwoDevices() {
 fun ThreeDevices() {
     WearApp(
         Devices(
-            SmallDevice(1, "Watch", 100, DeviceType.Watch),
-            SmallDevice(1, "Phone", 80, DeviceType.Phone),
-            SmallDevice(0, "Glasses", 20, DeviceType.Glasses),
+            SharedDevice(1, "Watch", 100, DeviceType.Watch),
+            SharedDevice(1, "Phone", 80, DeviceType.Phone),
+            SharedDevice(0, "Glasses", 20, DeviceType.Glasses),
             null
         )
     )
@@ -235,10 +231,10 @@ fun ThreeDevices() {
 fun FourDevices() {
     WearApp(
         Devices(
-            SmallDevice(0, "Watch", 100, DeviceType.Watch),
-            SmallDevice(0, "Phone", 80, DeviceType.Phone),
-            SmallDevice(0, "Headphones", 80, DeviceType.Headphones),
-            SmallDevice(0, "Glasses", 20, DeviceType.Glasses),
+            SharedDevice(0, "Watch", 100, DeviceType.Watch),
+            SharedDevice(0, "Phone", 80, DeviceType.Phone),
+            SharedDevice(0, "Headphones", 80, DeviceType.Headphones),
+            SharedDevice(0, "Glasses", 20, DeviceType.Glasses),
         )
     )
 }

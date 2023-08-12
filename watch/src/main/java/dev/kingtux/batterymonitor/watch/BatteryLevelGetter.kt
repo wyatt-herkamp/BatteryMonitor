@@ -15,7 +15,8 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import dev.kingtux.batterymonitor.watch.complication.MainComplicationService
 import dev.kingtux.batterymonitor.watch.tile.MainTileService
-import dev.kingtux.common.SmallDevice
+import dev.kingtux.common.DeviceMessage
+import dev.kingtux.common.SharedDevice
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,6 +49,7 @@ class BatteryLevelGetter : WearableListenerService(), DataClient.OnDataChangedLi
 
     override fun onDataChanged(message: DataEventBuffer) {
         Log.d("BatteryLevelGetter-Service", "onMessageReceived: $message")
+        val devices: DeviceMessage
     }
 
     override fun onMessageReceived(message: MessageEvent) {
@@ -56,7 +58,7 @@ class BatteryLevelGetter : WearableListenerService(), DataClient.OnDataChangedLi
             val decodeToString = message.data.decodeToString()
             Log.d("BatteryLevelGetter-Service", "onMessageReceived: $decodeToString");
             val devices =
-                Gson().fromJson(decodeToString, Array<SmallDevice>::class.java)
+                Gson().fromJson(decodeToString, Array<SharedDevice>::class.java)
                     .toList()
             currentBattery.deviceOne = devices.getOrNull(0)
             currentBattery.deviceTwo  = devices.getOrNull(1)

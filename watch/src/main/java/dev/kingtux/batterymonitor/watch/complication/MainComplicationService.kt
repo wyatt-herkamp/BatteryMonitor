@@ -17,7 +17,7 @@ import androidx.wear.watchface.complications.datasource.SuspendingComplicationDa
 import dagger.hilt.android.AndroidEntryPoint
 import dev.kingtux.batterymonitor.watch.Devices
 import dev.kingtux.batterymonitor.watch.presentation.MainActivity
-import dev.kingtux.common.SmallDevice
+import dev.kingtux.common.SharedDevice
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,7 +29,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
 
             ComplicationType.SHORT_TEXT -> {
                 return deviceText(
-                    SmallDevice(
+                    SharedDevice(
                         0, "Ear Buds", 100, dev.kingtux.common.DeviceType.Earbuds
                     )
                 )
@@ -37,7 +37,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
 
             ComplicationType.RANGED_VALUE -> {
                 return deviceRange(
-                    SmallDevice(
+                    SharedDevice(
                         0, "Ear Buds", 100, dev.kingtux.common.DeviceType.Earbuds
                     )
                 )
@@ -90,7 +90,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         ).build(), PlainComplicationText.Builder("No Device").build()
     ).setTapAction(applicationContext.tapAction()).build();
 
-    private fun deviceText(device: SmallDevice) = ShortTextComplicationData.Builder(
+    private fun deviceText(device: SharedDevice) = ShortTextComplicationData.Builder(
         PlainComplicationText.Builder("${device.name} ${device.batteryLevel}%").build(),
         PlainComplicationText.Builder("${device.name} ${device.batteryLevel}%").build()
     ).setTapAction(applicationContext.tapAction()).build();
@@ -102,7 +102,7 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
         setTapAction(applicationContext.tapAction())
     }.build()
 
-    private fun deviceRange(device: SmallDevice) = RangedValueComplicationData.Builder(
+    private fun deviceRange(device: SharedDevice) = RangedValueComplicationData.Builder(
         device.batteryLevel.toFloat(),
         0f,
         100f,

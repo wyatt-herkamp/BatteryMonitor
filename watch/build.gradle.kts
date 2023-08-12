@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-parcelize")
     kotlin("kapt")
 }
 val tiles by extra("1.2.0")
@@ -55,6 +57,7 @@ android {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("com.google.android.gms:play-services-wearable:18.0.0")
