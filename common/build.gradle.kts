@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.kingtux.common"
+    namespace = "dev.kingtux.batterymonitor"
     compileSdk = 33
 
     defaultConfig {

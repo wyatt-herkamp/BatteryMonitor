@@ -1,0 +1,36 @@
+[versions]
+kotlinVersion = "1.9.0"
+hiltVersion = "2.47"
+composeVersion = "1.2.0"
+playServices = "18.0.0"
+horologist= "0.5.3"
+tiles="1.2.0"
+protolayout="1.0.0"
+[libraries]
+androidx-protolayout = { module = "androidx.wear.protolayout:protolayout", version.ref = "protolayout" }
+androidx-protolayout-expression = { module = "androidx.wear.protolayout:protolayout-expression", version.ref = "protolayout" }
+hiltAndroid = {module = "com.google.dagger:hilt-android", version.ref= "hiltVersion"}
+hiltAndroidCompiler = {module = "com.google.dagger:hilt-android-compiler", version.ref= "hiltVersion"}
+
+kotlinSerializeJson= "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1"
+
+composeWearMaterial = {module = "androidx.wear.compose:compose-material", version.ref= "composeVersion"}
+composeWearFoundation = {module = "androidx.wear.compose:compose-foundation", version.ref= "composeVersion"}
+protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "protolayout" }
+tiles = {module = "androidx.wear.tiles:tiles", version.ref= "tiles"}
+
+protoLayout = {module = "androidx.wear.protolayout:protolayout", version.ref= "protolayout"}
+protoLayoutMaterial = {module = "androidx.wear.protolayout:protolayout-material", version.ref= "protolayout"}
+protoLayoutExpression = {module = "androidx.wear.protolayout:protolayout-expression", version.ref= "protolayout"}
+
+horologistComposeLayout = {module = "com.google.android.horologist:horologist-compose-layout", version.ref= "horologist"}
+horologistTiles = {module = "com.google.android.horologist:horologist-tiles", version.ref= "horologist"}
+horologistComposeTools = {module = "com.google.android.horologist:horologist-compose-tools", version.ref= "horologist"}
+
+
+googlePlayServicesWearable = {module = "com.google.android.gms:play-services-wearable", version.ref= "playServices"}
+[plugins]
+kotlinAndroid =  { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+kotlinSerialize =  { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+kotlinParcelize =  { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinVersion" }
+kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlinVersion" }
