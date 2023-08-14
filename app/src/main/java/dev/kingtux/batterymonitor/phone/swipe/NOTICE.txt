@@ -1,1 +1,0 @@
-Code is sourced from https://github.com/saket/swipe/tree/trunk

@@ -1,6 +1,7 @@
 package dev.kingtux.batterymonitor.phone
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 
 import android.os.Bundle
@@ -8,7 +9,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.cardview.widget.CardView
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import dev.kingtux.batterymonitor.phone.ui.theme.BatteryMonitorTheme
 import dev.kingtux.common.Device
 import dev.kingtux.common.DeviceType
 
@@ -37,15 +36,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.contentColorFor
+import androidx.compose.runtime.MutableState
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -55,12 +53,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import dev.kingtux.batterymonitor.phone.swipe.SwipeAction
-import dev.kingtux.batterymonitor.phone.swipe.SwipeableActionsBox
-import dev.kingtux.batterymonitor.phone.swipe.rememberSwipeableActionsState
-
+import dev.kingtux.batterymonitor.phone.swipe.LeftSwipeActionCard
+import dev.kingtux.batterymonitor.phone.swipe.swipeAction
+import dev.kingtux.batterymonitor.phone.ui.BatteryMonitorTheme
 
 import java.io.File
 import java.nio.file.Path
@@ -90,7 +86,7 @@ class MainActivity : ComponentActivity() {
                 if (!isGranted) {
                     Log.d("BatteryLevelGetter", "onCreate: Denied")
                     setContent {
-                        BatteryMonitorTheme {
+                        MaterialTheme {
                             // A surface container using the 'background' color from the theme
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
@@ -127,13 +123,19 @@ class MainActivity : ComponentActivity() {
 
 }
 
+fun updateDevice(device: Device, directory: Path) {
+    device.toDeviceConfiguration().saveDevice(directory)
+}
+
 @Composable
 fun MainContent(
-    enabledDevices: List<Device>,
-    disabledDevices: List<Device>,
+    enabledDevicesValue: List<Device>,
+    disabledDevicesValue: List<Device>,
     applicationDirectory: Path,
     modifier: Modifier = Modifier
 ) {
+    val enabledDevices = remember { mutableStateOf(enabledDevicesValue) }
+    val disabledDevices = remember { mutableStateOf(disabledDevicesValue) }
     var selectedTab by remember { mutableIntStateOf(0) }
     Column(modifier = modifier) {
         TabRow(
@@ -157,9 +159,22 @@ fun MainContent(
             )
         }
         if (selectedTab == 0) {
-            DevicesAsCards(enabledDevices, applicationDirectory, modifier = modifier)
+            DevicesAsCards(
+                enabledDevices,
+                applicationDirectory,
+                modifier = modifier,
+                addDeviceToOtherList = {
+                    val newList = disabledDevices.value.toMutableList()
+                    newList.add(it)
+                    disabledDevices.value = newList
+                })
         } else if (selectedTab == 1) {
-            DevicesAsCards(disabledDevices, applicationDirectory, modifier = modifier)
+            DevicesAsCards(disabledDevices, applicationDirectory, modifier = modifier,
+                addDeviceToOtherList = {
+                    val newList = enabledDevices.value.toMutableList()
+                    newList.add(it)
+                    enabledDevices.value = newList
+                })
         }
     }
 
@@ -168,143 +183,165 @@ fun MainContent(
 
 
 @Composable
-fun DevicesAsCards(devices: List<Device>, applicationDirectory: Path, modifier: Modifier = Modifier,) {
+fun DevicesAsCards(
+    devices: MutableState<List<Device>>,
+    applicationDirectory: Path,
+    modifier: Modifier = Modifier,
+    addDeviceToOtherList: ((Device) -> Unit) = { }
+) {
 
     LazyColumn(
         modifier = modifier
     ) {
-        items(devices,
+        items(devices.value,
             key = { item -> item.address }
         ) { item ->
-            DeviceAsCard(item, applicationDirectory, modifier = modifier, enableDisableChange = { device, newStatus ->
-                // TODO update
-            })
+            DeviceAsCard(
+                item,
+                modifier = modifier,
+                enableDisableChange = { device, newStatus ->
+                    val newList = devices.value.toMutableList()
+                    newList.remove(device)
+                    devices.value = newList
+                    addDeviceToOtherList(device)
+                },
+                updateDevice = { innerDevice ->
+                    updateDevice(innerDevice, applicationDirectory)
+                    val newList = devices.value.toMutableList()
+                    newList.remove(innerDevice)
+                    newList.add(innerDevice)
+                    devices.value = newList
+                }
+            )
         }
     }
 }
+
 @Composable
 fun DeviceAsCard(
-    device: Device,applicationDirectory: Path, modifier: Modifier = Modifier,
+    device: Device, modifier: Modifier = Modifier,
     enableDisableChange: (
         device: Device,
         newStatus: Boolean
-    ) -> Unit
-){
+    ) -> Unit,
+    updateDevice: ((Device) -> Unit) = { }
+) {
 
-    val swipeAction = if (device.enabled){
-        SwipeAction(
+    val swipeAction = if (device.enabled) {
+        swipeAction(
             icon = rememberVectorPainter(Icons.TwoTone.Warning),
             text = "Disable",
             background = MaterialTheme.colorScheme.error,
-            onSwipe = {
+            onClick = {
                 device.enabled = false
+                updateDevice(device)
                 enableDisableChange(device, false)
             }
         )
-    }else{
-        SwipeAction(
+    } else {
+        swipeAction(
             icon = rememberVectorPainter(Icons.TwoTone.Warning),
             background = MaterialTheme.colorScheme.secondary,
             text = "Enable",
-            onSwipe = {
+            onClick = {
                 device.enabled = true
+                updateDevice(device)
                 enableDisableChange(device, true)
             }
         )
     }
-    SwipeableActionsBox(
-        leftActions = listOf(swipeAction)
-    ){
+    LeftSwipeActionCard(
+        actions = listOf(swipeAction)
+    ) {
 
-        Card(
+        var dropDownMenuExpanded by remember { mutableStateOf(false) }
+
+        Row(
             modifier = modifier
                 .padding(all = 8.dp),
-        ) {
-            var dropDownMenuExpanded by remember { mutableStateOf(false) }
+            horizontalArrangement = Arrangement.SpaceBetween,
 
-            Row(
+            ) {
+            Column(
                 modifier = modifier
-                    .padding(all = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-
-                ) {
-                Column(
-                    modifier = modifier
-                        .align(Alignment.CenterVertically)
-                ) {
-                    val modifierForText= if (device.isConnected){
-                        modifier
-                            .padding(16.dp)
-                            .width(100.dp)
-                    }else{
-                        modifier
-                            .padding(16.dp)
-                    };
-                    Text(
-                        text = device.name,
-                        modifier = modifierForText
-                    )
-                }
-                if (device.isConnected) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    if (device.batteryLevel != -1) {
-                        Column(
-                            modifier = modifier
-                                .align(Alignment.CenterVertically)
-                        ) {
-                            Text(
-                                text = String.format("%d%%", device.batteryLevel),
-                                modifier = modifier
-                                    .padding(16.dp)
-                            )
-                        }
-                    }
-                }else{
-                    Spacer(modifier = Modifier.padding(8.dp,0.dp))
-                }
-
-                Spacer(modifier = modifier.weight(1f))
-
-                Column(
-                    modifier = modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(end = 4.dp)
-                ) {
-                    Button(
-                        onClick = { dropDownMenuExpanded = true },
-
+                    .align(Alignment.CenterVertically)
+            ) {
+                val modifierForText = if (device.isConnected) {
+                    modifier
+                        .padding(16.dp)
+                        .width(100.dp)
+                } else {
+                    modifier
+                        .padding(16.dp)
+                };
+                Text(
+                    text = device.name,
+                    modifier = modifierForText
+                )
+            }
+            if (device.isConnected) {
+                Spacer(modifier = Modifier.weight(1f))
+                if (device.batteryLevel != -1) {
+                    Column(
                         modifier = modifier
-                            .requiredWidth(150.dp)
+                            .align(Alignment.CenterVertically)
                     ) {
                         Text(
-                            text = stringResource(id =  device.deviceType.nameResource()),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = modifier.width(150.dp)
+                            text = String.format("%d%%", device.batteryLevel),
+                            modifier = modifier
+                                .padding(16.dp)
                         )
                     }
-                    DropdownMenu(expanded = dropDownMenuExpanded, onDismissRequest = { dropDownMenuExpanded = false }) {
-                        for (type in DeviceType.values()) {
-                            DropdownMenuItem(text = {
-                                Text(stringResource(id =  device.deviceType.nameResource()), modifier = modifier)
-                            }, onClick = {
-                                device.deviceType = type
-                                dropDownMenuExpanded = false
-                                device.toDeviceConfiguration().saveDevice(applicationDirectory)
-                            })
-                        }
+                }
+            } else {
+                Spacer(modifier = Modifier.padding(8.dp, 0.dp))
+            }
 
+            Spacer(modifier = modifier.weight(1f))
+
+            Column(
+                modifier = modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 4.dp)
+            ) {
+                Button(
+                    onClick = { dropDownMenuExpanded = true },
+
+                    modifier = modifier
+                        .requiredWidth(150.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = device.deviceType.nameResource()),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = modifier.width(150.dp)
+                    )
+                }
+                DropdownMenu(
+                    expanded = dropDownMenuExpanded,
+                    onDismissRequest = { dropDownMenuExpanded = false }) {
+                    for (type in DeviceType.values()) {
+                        DropdownMenuItem(text = {
+                            Text(
+                                stringResource(id = type.nameResource()),
+                                modifier = modifier
+                            )
+                        }, onClick = {
+                            device.deviceType = type
+                            dropDownMenuExpanded = false
+                            updateDevice(device)
+                        })
                     }
+
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun Device(device: Device,applicationDirectory: Path, modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(device.enabled) }
+fun Device(device: Device, applicationDirectory: Path, modifier: Modifier = Modifier) {
     var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
     Row(
@@ -313,16 +350,16 @@ fun Device(device: Device,applicationDirectory: Path, modifier: Modifier = Modif
             .border(1.dp, MaterialTheme.colorScheme.secondary),
         horizontalArrangement = Arrangement.SpaceBetween,
 
-    ) {
+        ) {
         Column(
             modifier = modifier
                 .align(Alignment.CenterVertically)
         ) {
-            val modifierForText= if (device.isConnected){
+            val modifierForText = if (device.isConnected) {
                 modifier
                     .padding(16.dp)
                     .width(100.dp)
-            }else{
+            } else {
                 modifier
                     .padding(16.dp)
             };
@@ -345,8 +382,8 @@ fun Device(device: Device,applicationDirectory: Path, modifier: Modifier = Modif
                     )
                 }
             }
-        }else{
-            Spacer(modifier = Modifier.padding(8.dp,0.dp))
+        } else {
+            Spacer(modifier = Modifier.padding(8.dp, 0.dp))
         }
 
         Spacer(modifier = modifier.weight(1f))
@@ -363,16 +400,21 @@ fun Device(device: Device,applicationDirectory: Path, modifier: Modifier = Modif
                     .requiredWidth(150.dp)
             ) {
                 Text(
-                    text = stringResource(id =  device.deviceType.nameResource()),
+                    text = stringResource(id = device.deviceType.nameResource()),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = modifier.width(150.dp)
                 )
             }
-            DropdownMenu(expanded = dropDownMenuExpanded, onDismissRequest = { dropDownMenuExpanded = false }) {
+            DropdownMenu(
+                expanded = dropDownMenuExpanded,
+                onDismissRequest = { dropDownMenuExpanded = false }) {
                 for (type in DeviceType.values()) {
                     DropdownMenuItem(text = {
-                        Text(stringResource(id =  device.deviceType.nameResource()), modifier = modifier)
+                        Text(
+                            stringResource(id = device.deviceType.nameResource()),
+                            modifier = modifier
+                        )
                     }, onClick = {
                         device.deviceType = type
                         dropDownMenuExpanded = false
@@ -385,44 +427,65 @@ fun Device(device: Device,applicationDirectory: Path, modifier: Modifier = Modif
     }
 }
 
-
-
-@Preview(showBackground = true, device = "id:pixel_7_pro",
+@SuppressLint("UnrememberedMutableState")
+@Preview(
+    showBackground = true, device = "id:pixel_7_pro",
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable
 fun EnabledDevicesPreviewCard() {
-    BatteryMonitorTheme {
+    MaterialTheme {
         val enabledDevices = listOf(
             Device(1, "Earbuds", 100, DeviceType.Earbuds, true, "00:00:00:00:00:10", true),
-            Device(1, "Developer's WH-1000XM4", 0, DeviceType.Headphones, false, "00:00:00:00:10:00", true),
+            Device(
+                1,
+                "Developer's WH-1000XM4",
+                0,
+                DeviceType.Headphones,
+                false,
+                "00:00:00:00:10:00",
+                true
+            ),
             Device(1, "Glasses", 50, DeviceType.Glasses, true, "00:00:00:10:00:00", true),
         )
-        DevicesAsCards(enabledDevices, applicationDirectory = File("test").toPath())
+        DevicesAsCards(mutableStateOf(enabledDevices), applicationDirectory = File("test").toPath())
     }
 }
-@Preview(showBackground = true, device = "id:pixel_7_pro",
+
+@SuppressLint("UnrememberedMutableState")
+@Preview(
+    showBackground = true, device = "id:pixel_7_pro",
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable
 fun DisabledDevicesPreviewCard() {
-    BatteryMonitorTheme {
+    MaterialTheme {
         val disableDevices = listOf(
             Device(1, "Car", 0, DeviceType.Other, false, "00:00:10:00:00:00", false),
             Device(1, "Watch", 0, DeviceType.Watch, false, "00:10:00:00:00:00", false),
         )
-        DevicesAsCards(disableDevices, applicationDirectory = File("test").toPath())
+        DevicesAsCards(mutableStateOf(disableDevices), applicationDirectory = File("test").toPath())
     }
 }
-@Preview(showBackground = true, device = "id:pixel_7_pro",
+
+@Preview(
+    showBackground = true, device = "id:pixel_7_pro",
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 )
 @Composable
 fun FullTest() {
-    BatteryMonitorTheme {
+    MaterialTheme {
         val enabledDevices = listOf(
             Device(1, "Earbuds", 100, DeviceType.Earbuds, true, "00:00:00:00:00:10", true),
-            Device(1, "Developer's WH-1000XM4", 0, DeviceType.Headphones, false, "00:00:00:00:10:00", true),
+            Device(
+                1,
+                "Developer's WH-1000XM4",
+                0,
+                DeviceType.Headphones,
+                false,
+                "00:00:00:00:10:00",
+                true
+            ),
             Device(1, "Glasses", 50, DeviceType.Glasses, true, "00:00:00:10:00:00", true),
         )
         val disableDevices = listOf(

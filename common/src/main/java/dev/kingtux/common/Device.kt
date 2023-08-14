@@ -77,6 +77,13 @@ data class Device(
     val address: String,
     var enabled: Boolean
 ){
+    override fun equals(other: Any?): Boolean {
+        if (other !is Device) {
+            return false
+        }
+        return other.address == address
+    }
+
     fun toSharedDevice(): SharedDevice{
         return SharedDevice(priority, name, batteryLevel, deviceType)
     }
