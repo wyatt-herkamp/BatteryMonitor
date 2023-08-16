@@ -1,15 +1,14 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.android)
+    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.dagger)
+    alias(libs.plugins.kotlinSerialize)
+    alias(libs.plugins.kotlinParcelize)
     kotlin("kapt")
-
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("kotlin-parcelize")
 }
 
 android {
-    namespace = "dev.kingtux.batterymonitor"
+    namespace = "dev.kingtux.batterymonitor.phone"
     compileSdk = 34
 
     defaultConfig {
@@ -57,36 +56,33 @@ android {
 
 dependencies {
     wearApp(project(mapOf("path" to ":wear")))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("com.android.car.ui:car-ui-lib:2.5.0")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.google.android.gms:play-services-wearable:18.0.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.startup:startup-runtime:1.1.1")
-
     implementation(project(mapOf("path" to ":common")))
 
-    implementation("com.google.dagger:hilt-android:${rootProject.extra["HILT_VERISON"]}")
-    kapt("com.google.dagger:hilt-android-compiler:${rootProject.extra["HILT_VERISON"]}")
+    implementation(libs.kotlinSerializeJson)
+
+    implementation(libs.androidXLifecycle)
+    implementation(libs.androidXActivity)
+    implementation(platform(libs.composeBom))
+    implementation(libs.androidXComposeUI)
+    implementation(libs.androidXComposeUITooling)
+    implementation(libs.androidXComposeUIGraphics)
+    implementation(libs.androidXComposeMaterial)
+    implementation(libs.androidXAppCompat)
+    implementation(libs.material)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidXTestJunit)
+    androidTestImplementation(libs.androidXTestEspresso)
+    androidTestImplementation(platform(libs.composeBom))
+    androidTestImplementation(libs.androidXUITestJunit)
+    debugImplementation(libs.androidXComposeUITooling)
+    debugImplementation(libs.androidXUITestManifest)
+    implementation(libs.googlePlayServicesWearable)
+    implementation(libs.androidXStartup)
+
+
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltAndroidCompiler)
 }
 kapt {
     correctErrorTypes = true

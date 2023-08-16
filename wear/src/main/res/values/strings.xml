@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Battery Monitor Watch</string>
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
     <string name="tile_label">Battery Monitor Tile</string>
     <string name="title_activity_presentation._main">presentation.MainActivity</string>
     <string name="title_activity_main">MainActivity</string>
