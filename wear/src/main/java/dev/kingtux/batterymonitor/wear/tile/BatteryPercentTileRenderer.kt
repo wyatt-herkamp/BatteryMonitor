@@ -30,6 +30,7 @@ import dev.kingtux.batterymonitor.SharedDevice
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.ResourceBuilders.Resources
 import dev.kingtux.batterymonitor.wear.TRACK_BACKGROUND
+import dev.kingtux.batterymonitor.wear.getTileColor
 import dev.kingtux.batterymonitor.wear.Devices as TileData
 
 class BatteryPercentTileRenderer(context: Context) :
@@ -113,13 +114,7 @@ class BatteryPercentTileRenderer(context: Context) :
             }
         }
 
-        val batteryLevel = device.batteryLevel ?: 0
-        val colorProp = if (batteryLevel > 50) {
-            ColorProp.Builder(0xff00ff00.toInt()).build()
-        } else {
-            ColorProp.Builder(0xffff0000.toInt()).build()
-        }
-
+        val colorProp = device.getTileColor()
         setModifiers(
             ModifiersBuilders.Modifiers.Builder().setPadding(
                 ModifiersBuilders.Padding.Builder().setAll(DpProp.Builder(2f).build()).build()

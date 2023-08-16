@@ -11,7 +11,7 @@ const val TRACK_BACKGROUND= 0xff000000
 fun SharedDevice.getColor(): Color{
     return if (batteryLevelOrZero() > 50) {
         Color(ABOVE_50)
-    } else if (batteryLevelOrZero() < 20) {
+    } else if (batteryLevelOrZero() <= 20) {
         Color(BELOW_20)
     } else {
         Color(BELOW_50)
@@ -21,7 +21,7 @@ fun SharedDevice.getColor(): Color{
 fun SharedDevice.getTileColor(): ColorProp{
     return if (batteryLevelOrZero() > 50) {
         ColorProp.Builder(ABOVE_50.toInt()).build()
-    } else if (batteryLevelOrZero() < 20) {
+    } else if (batteryLevelOrZero() <= 20) {
         ColorProp.Builder(BELOW_20.toInt()).build()
     } else {
         ColorProp.Builder(BELOW_50.toInt()).build()

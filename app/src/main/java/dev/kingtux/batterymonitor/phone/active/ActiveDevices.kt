@@ -136,6 +136,10 @@ class ActiveDevices {
         }
     }
 
+    fun putPhone(applicationContext: Context) {
+        putDevice(phone, Wearable.getDataClient(applicationContext), DeviceRoute.Phone)
+    }
+
     companion object {
         const val TAG = "ActiveDevices";
     }

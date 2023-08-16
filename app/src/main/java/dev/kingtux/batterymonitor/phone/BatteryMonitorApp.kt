@@ -20,8 +20,11 @@ class BatteryMonitorApp : Application() {
 
     private var localBatteryMonitor = LocalBatteryMonitor(
         updateBatteryLevel = { batteryLevel ->
-            activeDevices.phone.batteryLevel = batteryLevel
-            Log.d("BatteryLevelGetter-Local", "Updated Phone: ${activeDevices.phone}")
+            if (activeDevices.phone.batteryLevel != batteryLevel){
+                activeDevices.phone.batteryLevel = batteryLevel
+                activeDevices.putPhone(applicationContext);
+                Log.d("BatteryLevelGetter-Local", "Updated Phone: ${activeDevices.phone}")
+            }
         }
     )
 
