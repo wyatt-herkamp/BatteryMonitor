@@ -28,6 +28,7 @@ class BatteryLevelGetter : WearableListenerService() {
                 currentBattery.updateFromDataItem(it)
             }
         }
+        BatteryMonitorWearApp.refreshRenders(applicationContext)
         Log.d(TAG, "onDataChanged: $currentBattery")
     }
 
@@ -38,7 +39,6 @@ class BatteryLevelGetter : WearableListenerService() {
             Log.d("BatteryLevelGetter-Service", "Refreshing Devices")
             Wearable.getMessageClient(context)
                 .sendMessage("wear", "/batteryMonitor/refresh-devices", ByteArray(0))
-
         }
 
         fun reloadDevices(context: Context) {

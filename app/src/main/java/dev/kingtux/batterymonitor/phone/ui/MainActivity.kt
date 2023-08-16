@@ -1,4 +1,4 @@
-package dev.kingtux.batterymonitor.phone
+package dev.kingtux.batterymonitor.phone.ui
 
 import android.Manifest
 import android.content.Context
@@ -121,9 +121,6 @@ fun ContentWrap(
     }
 }
 
-fun updateDevice(device: Device, directory: Path) {
-    device.toDeviceConfiguration().saveDevice(directory)
-}
 
 @Composable
 fun NoPermission() {
@@ -144,10 +141,10 @@ fun MainContent(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val updateDevice: (Device) -> Unit = {
-        updateDevice(
-            it,
-            context.dataDir.toPath()
-        )
+        val directory = context.filesDir.toPath()
+
+        Log.d("MainActivity", "updateDevice: $it to $directory")
+        it.toDeviceConfiguration().saveDevice(directory)
     }
     Column(modifier = modifier) {
         TabRow(selectedTabIndex = selectedTab,

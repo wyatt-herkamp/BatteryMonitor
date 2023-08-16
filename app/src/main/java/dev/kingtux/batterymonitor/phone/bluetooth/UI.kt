@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import dev.kingtux.batterymonitor.DeviceType
 import dev.kingtux.batterymonitor.phone.swipe.LeftSwipeActionCard
 import dev.kingtux.batterymonitor.phone.swipe.swipeAction
-import dev.kingtux.batterymonitor.phone.BatteryMonitorTheme
+import dev.kingtux.batterymonitor.phone.ui.BatteryMonitorTheme
 
 
 @Composable

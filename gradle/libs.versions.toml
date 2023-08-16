@@ -7,11 +7,11 @@ playServices = "18.0.0"
 horologist= "0.5.3"
 tiles="1.2.0"
 protolayout="1.0.0"
-guava="31.0.1-android"
+guava="32.1.2-android"
 composeBom = "2023.08.00"
 androidGradle="8.1.0"
 [libraries]
-material= "com.google.android.material:material:1.9.0"
+material= "com.google.android.material:material:1.11.0-alpha02"
 androidx-protolayout = { module = "androidx.wear.protolayout:protolayout", version.ref = "protolayout" }
 androidx-protolayout-expression = { module = "androidx.wear.protolayout:protolayout-expression", version.ref = "protolayout" }
 hiltAndroid = {module = "com.google.dagger:hilt-android", version.ref= "hiltVersion"}
@@ -39,7 +39,7 @@ androidXUITestManifest = {module = "androidx.compose.ui:ui-test-manifest", versi
 androidXComposeUITooling= {module = "androidx.compose.ui:ui-tooling", version.ref= "composeVersion"}
 androidXWearComposeMaterial= {module = "androidx.wear.compose:compose-material", version.ref= "composeWear"}
 androidXWearComposeFoundation= {module = "androidx.wear.compose:compose-material", version.ref= "composeWear"}
-androidXWatchfaceComplication = "androidx.wear.watchface:watchface-complications-data-source-ktx:1.1.1"
+androidXWatchfaceComplication = "androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.0-alpha09"
 androidXKotlin="androidx.core:core-ktx:1.10.1"
 androidXActivity="androidx.activity:activity-compose:1.7.2"
 androidXLifecycle="androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"

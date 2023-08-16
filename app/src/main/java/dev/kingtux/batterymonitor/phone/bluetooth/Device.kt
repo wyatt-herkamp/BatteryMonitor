@@ -105,6 +105,10 @@ class Device {
     fun refreshDevice(bluetoothManager: BluetoothManager) =
         refreshDevice(getBluetoothDevice(bluetoothManager))
 
+    override fun toString(): String {
+        return "Device(address='$address', name='$name', priority=$priority, batteryLevel=$batteryLevel, deviceType=$deviceType, isConnected=$isConnected, enabled=$enabled)"
+    }
+
     companion object {
         fun testDevices(): MutableList<Device> {
             return mutableListOf(

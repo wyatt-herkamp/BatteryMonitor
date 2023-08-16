@@ -35,11 +35,13 @@ class MainTileService : SuspendingTileService() {
 
     override fun onTileEnterEvent(requestParams: EventBuilders.TileEnterEvent) {
         super.onTileEnterEvent(requestParams)
-        Log.d(TAG, "onTileEnterEvent: $currentBattery")
         BatteryLevelGetter.refreshDevices(applicationContext)
+        currentBattery.updateAllFromDataStore(applicationContext)
+        Log.d(TAG, "onTileEnterEvent: $currentBattery")
     }
     override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): Tile {
         BatteryLevelGetter.refreshDevices(applicationContext)
+        currentBattery.updateAllFromDataStore(applicationContext)
         Log.d(TAG, "onTileEnterEvent: $currentBattery")
         return renderer.renderTimeline(currentBattery, requestParams)
     }

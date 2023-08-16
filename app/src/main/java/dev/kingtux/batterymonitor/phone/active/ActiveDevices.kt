@@ -40,9 +40,8 @@ class ActiveDevices {
             Log.w(TAG, "Starting with no devices")
             return
         }
-        val devices = BluetoothUtils.getPairedDevices(context).toMutableList();
-        Log.d(TAG, "Starting with $devices")
-        this.connectedDevices = devices;
+        resetDevices(context)
+        Log.d(TAG, "ActiveDevices: $connectedDevices")
     }
 
     fun getSharedDevices(): List<SharedDevice> {
@@ -68,17 +67,24 @@ class ActiveDevices {
         }.filter {
             it.isConnected
         }.toMutableList();
+        connectedDevices.sortBy {
+            it.priority
+        }
         updateDevices(Wearable.getDataClient(context))
     }
 
     fun updateDevices(dataClient: DataClient) {
         putDevice(phone, dataClient, DeviceRoute.Phone)
 
-        connectedDevices.getOrNull(0)?.let {
+        val devicesToSend = connectedDevices.toMutableList().filter {
+            it.batteryLevel != null && it.batteryLevel != -1
+        }.toMutableList();
+        devicesToSend.sortBy { it.priority }
+        devicesToSend.getOrNull(0)?.let {
             putDevice(it.toSharedDevice(), dataClient, DeviceRoute.DeviceOne)
         } ?: noDevice(dataClient, DeviceRoute.DeviceOne)
 
-        connectedDevices.getOrNull(1)?.let {
+        devicesToSend.getOrNull(1)?.let {
             putDevice(it.toSharedDevice(), dataClient, DeviceRoute.DeviceTwo)
         } ?: noDevice(dataClient, DeviceRoute.DeviceTwo)
     }
@@ -114,17 +120,19 @@ class ActiveDevices {
             var hasChanged = false;
             for (device in connectedDevices) {
                 if (device.refreshDevice(bluetoothManager)) {
-                    if (!device.isConnected) {
-                        Log.d(TAG, "refreshDevices: Removing $device")
-                        connectedDevices.remove(device)
-                        continue
-                    }
                     hasChanged = true;
                 }
+            }
+            connectedDevices.removeIf() {
+                !it.isConnected
+            }
+            connectedDevices.sortBy {
+                it.priority
             }
             if (hasChanged) {
                 updateDevices(Wearable.getDataClient(applicationContext))
             }
+            Log.d(TAG, "refreshDevices: $connectedDevices")
         }
     }
 

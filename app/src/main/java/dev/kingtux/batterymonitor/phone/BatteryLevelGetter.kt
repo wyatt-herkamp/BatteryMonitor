@@ -39,9 +39,7 @@ class BatteryLevelGetter : WearableListenerService() {
         if (message.path == "/batteryMonitor/refresh-devices") {
             devices.refreshDevices(applicationContext)
         } else if (message.path == "/batteryMonitor/reload-devices") {
-            devices.connectedDevices =
-                BluetoothUtils.getPairedDevices(applicationContext).toMutableList();
-            devices.updateDevices(Wearable.getDataClient(applicationContext))
+            devices.resetDevices(applicationContext)
         }
     }
 

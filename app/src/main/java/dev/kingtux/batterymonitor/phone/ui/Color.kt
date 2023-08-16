@@ -1,4 +1,4 @@
-package dev.kingtux.batterymonitor.phone
+package dev.kingtux.batterymonitor.phone.ui
 
 import androidx.compose.ui.graphics.Color
 
