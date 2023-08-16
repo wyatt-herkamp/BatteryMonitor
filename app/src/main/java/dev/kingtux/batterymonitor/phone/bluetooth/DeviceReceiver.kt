@@ -71,7 +71,7 @@ class DeviceReceiver : BroadcastReceiver() {
             else -> {}
         }
         activeDevices.refreshDevices(context)
-        activeDevices.updateDevices(
+        activeDevices.putExtraDevices(
             Wearable.getDataClient(context)
         )
     }

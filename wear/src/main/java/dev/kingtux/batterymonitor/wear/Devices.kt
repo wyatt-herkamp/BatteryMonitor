@@ -81,11 +81,13 @@ data class Devices(
         val dataClient = Wearable.getDataClient(context)
         dataClient.dataItems.addOnSuccessListener {
             for (dataItem in it.iterator()) {
+                val frozenDataItem = dataItem.freeze();
                 Log.d(TAG, "Debugging Devices: $it")
-                if (DeviceRoute.isDeviceRoute(dataItem.uri)) {
-                    updateFromDataItem(dataItem, creator)
+                if (DeviceRoute.isDeviceRoute(frozenDataItem.uri)) {
+                    updateFromDataItem(frozenDataItem, creator)
                 }
             }
+            it.release()
             Log.d(TAG, "New Devices: $this")
         }
         MainTileService.forceTileUpdate(context)

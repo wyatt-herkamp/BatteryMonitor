@@ -24,14 +24,16 @@ class BatteryLevelGetter : WearableListenerService() {
 
         val dataEventsValues = dataEventBuffer.map { it.dataItem };
         for (it in dataEventsValues) {
-            if (DeviceRoute.isDeviceRoute(it.uri)) {
-                val deviceRoute = DeviceRoute.fromURI(it.uri)
+            val frozenDataItem = it.freeze();
+            if (DeviceRoute.isDeviceRoute(frozenDataItem.uri)) {
+                val deviceRoute = DeviceRoute.fromURI(frozenDataItem.uri)
                 if (deviceRoute == DeviceRoute.Watch) {
-                    val watch = SharedDevice.fromDataItem(it)
+                    val watch = SharedDevice.fromDataItem(frozenDataItem)
                     devices.watch = watch
                 }
             }
         }
+        dataEventBuffer.release();
     }
 
     override fun onMessageReceived(message: MessageEvent) {

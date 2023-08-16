@@ -8,8 +8,10 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.Creator
 import android.util.Log
+import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.DataMapItem
+import com.google.android.gms.wearable.PutDataMapRequest
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.parcelableCreator
 import kotlinx.serialization.Serializable
@@ -131,8 +133,30 @@ data class SharedDevice(
     fun batteryLevelOrZero() = batteryLevel ?: 0
 
     fun batteryLevelOutOf100() = batteryLevelOrZero() / 100f
+    @SuppressLint("VisibleForTests")
+    fun putDevice( dataClient: DataClient, deviceRoute: DeviceRoute) {
+        Log.d(TAG, "putDevice: $this with path: $deviceRoute")
+        val putDataMapReq = PutDataMapRequest.create(deviceRoute.toString())
+        val parcel = Parcel.obtain()
+        this.writeToParcel(parcel, 0)
+        val bytes = parcel.marshall()
+        putDataMapReq.dataMap.putByteArray("device", bytes)
+        parcel.recycle()
+        Log.d(TAG, "putDevice: ${bytes.size}")
+        dataClient.putDataItem(putDataMapReq.asPutDataRequest().apply {
+            Log.d(TAG, "putDevice: $this")
+        })
+    }
 
     companion object {
+        const val TAG = "SharedDevice"
+        @SuppressLint("VisibleForTests")
+        fun noDevice(dataClient: DataClient, deviceRoute: DeviceRoute) {
+
+            Log.d(TAG, "putDevice: null with path: $deviceRoute")
+            val putDataMapReq = PutDataMapRequest.create(deviceRoute.toString())
+            dataClient.putDataItem(putDataMapReq.asPutDataRequest())
+        }
         @SuppressLint("VisibleForTests")
         fun fromDataItem(
             dataItem: DataItem,
@@ -143,7 +167,7 @@ data class SharedDevice(
             )
             val deviceBytes = fromDataItem.dataMap.getByteArray("device")
             if (deviceBytes == null || deviceBytes.isEmpty()) {
-                Log.d("SharedDevice", "onDataChanged: Empty Device Asset")
+                Log.d(TAG, "onDataChanged: Empty Device Asset")
                 return null;
             }
 

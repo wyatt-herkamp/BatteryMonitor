@@ -23,11 +23,14 @@ class BatteryLevelGetter : WearableListenerService() {
 
         val dataEventsValues = dataEvents.map { it.dataItem };
         for (it in dataEventsValues) {
-            Log.d(TAG, "onDataChanged: ${it.uri}")
-            if (it.uri.path?.startsWith("/batteryMonitor/device/") == true) {
-                currentBattery.updateFromDataItem(it)
+            val frozenDataItem = it.freeze();
+
+            Log.d(TAG, "onDataChanged: ${frozenDataItem.uri}")
+            if (frozenDataItem.uri.path?.startsWith("/batteryMonitor/device/") == true) {
+                currentBattery.updateFromDataItem(frozenDataItem)
             }
         }
+        dataEvents.release();
         BatteryMonitorWearApp.refreshRenders(applicationContext)
         Log.d(TAG, "onDataChanged: $currentBattery")
     }
