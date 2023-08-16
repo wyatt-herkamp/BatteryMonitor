@@ -1,0 +1,65 @@
+[versions]
+kotlinVersion = "1.9.0"
+hiltVersion = "2.47"
+composeVersion = "1.5.0"
+composeWear = "1.2.0"
+playServices = "18.0.0"
+horologist= "0.5.3"
+tiles="1.2.0"
+protolayout="1.0.0"
+guava="32.1.2-android"
+composeBom = "2023.08.00"
+androidGradle="8.1.0"
+[libraries]
+material= "com.google.android.material:material:1.11.0-alpha02"
+androidx-protolayout = { module = "androidx.wear.protolayout:protolayout", version.ref = "protolayout" }
+androidx-protolayout-expression = { module = "androidx.wear.protolayout:protolayout-expression", version.ref = "protolayout" }
+hiltAndroid = {module = "com.google.dagger:hilt-android", version.ref= "hiltVersion"}
+hiltAndroidCompiler = {module = "com.google.dagger:hilt-android-compiler", version.ref= "hiltVersion"}
+
+kotlinSerializeJson= "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1"
+
+
+protolayout-material = { module = "androidx.wear.protolayout:protolayout-material", version.ref = "protolayout" }
+tiles = {module = "androidx.wear.tiles:tiles", version.ref= "tiles"}
+
+protoLayout = {module = "androidx.wear.protolayout:protolayout", version.ref= "protolayout"}
+protoLayoutMaterial = {module = "androidx.wear.protolayout:protolayout-material", version.ref= "protolayout"}
+protoLayoutExpression = {module = "androidx.wear.protolayout:protolayout-expression", version.ref= "protolayout"}
+
+horologistComposeLayout = {module = "com.google.android.horologist:horologist-compose-layout", version.ref= "horologist"}
+horologistTiles = {module = "com.google.android.horologist:horologist-tiles", version.ref= "horologist"}
+horologistComposeTools = {module = "com.google.android.horologist:horologist-compose-tools", version.ref= "horologist"}
+composeBom = {module = "androidx.compose:compose-bom", version.ref= "composeBom"}
+
+androidXStartup = "androidx.startup:startup-runtime:1.1.1"
+androidXComposeUI= {module = "androidx.compose.ui:ui", version.ref= "composeVersion"}
+androidXUITestJunit= {module = "androidx.compose.ui:ui-test-junit4", version.ref= "composeVersion"}
+androidXUITestManifest = {module = "androidx.compose.ui:ui-test-manifest", version.ref= "composeVersion"}
+androidXComposeUITooling= {module = "androidx.compose.ui:ui-tooling", version.ref= "composeVersion"}
+androidXWearComposeMaterial= {module = "androidx.wear.compose:compose-material", version.ref= "composeWear"}
+androidXWearComposeFoundation= {module = "androidx.wear.compose:compose-material", version.ref= "composeWear"}
+androidXWatchfaceComplication = "androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.0-alpha09"
+androidXKotlin="androidx.core:core-ktx:1.10.1"
+androidXActivity="androidx.activity:activity-compose:1.7.2"
+androidXLifecycle="androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
+androidXAppCompat="androidx.appcompat:appcompat:1.6.1"
+androidXComposeUIGraphics={module = "androidx.compose.ui:ui-graphics", version.ref= "composeVersion"}
+androidXComposeUIToolingPreview={module = "androidx.compose.ui:ui-tooling-preview", version.ref= "composeVersion"}
+androidXComposeMaterial="androidx.compose.material3:material3:1.1.1"
+javaxInject = "javax.inject:javax.inject:1"
+guava = {module = "com.google.guava:guava", version.ref= "guava"}
+googlePlayServicesWearable = {module = "com.google.android.gms:play-services-wearable", version.ref= "playServices"}
+
+
+junit = "junit:junit:4.13.2"
+androidXTestJunit = "androidx.test.ext:junit:1.1.5"
+androidXTestEspresso = "androidx.test.espresso:espresso-core:3.5.1"
+[plugins]
+android =  { id = "com.android.application", version.ref = "androidGradle" }
+androidLibrary =  { id = "com.android.library", version.ref = "androidGradle" }
+dagger =  { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion"}
+kotlinAndroid =  { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+kotlinSerialize =  { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+kotlinParcelize =  { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinVersion" }
+kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlinVersion" }

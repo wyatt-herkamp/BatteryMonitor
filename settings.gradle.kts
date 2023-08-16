@@ -11,14 +11,15 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
-    versionCatalogs{
-        create("libs"){
+    versionCatalogs {
+        create("libs") {
 
         }
     }
 }
 
 rootProject.name = "Battery Monitor"
+
 include(":common")
 include(":app")
-include(":watch")
+include(":wear")

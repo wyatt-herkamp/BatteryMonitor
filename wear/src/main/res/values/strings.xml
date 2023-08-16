@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Battery Monitor Watch</string>
+    <string name="tile_label">Battery Monitor Tile</string>
+    <string name="title_activity_presentation._main">presentation.MainActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="complication_label">Battery Monitor</string>
+</resources>

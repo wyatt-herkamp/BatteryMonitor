@@ -1,0 +1,8 @@
+<resources>
+    <string name="other">Other</string>
+    <string name="watch">Watch</string>
+    <string name="headphones">Headphones</string>
+    <string name="earbuds">Earbuds</string>
+    <string name="phone">Phone</string>
+    <string name="glasses">Glasses</string>
+</resources>
