@@ -96,16 +96,24 @@ enum class DeviceRoute {
     }
 
     companion object {
+        fun baseURI(): Uri {
+            return Uri.parse("wear://*${path()}")
+        }
+
+        fun path(): String {
+            return "/batteryMonitor/device/"
+        }
+
         fun isDeviceRoute(uri: Uri?): Boolean {
             if (uri == null) {
                 return false
             }
-            return uri.path?.contains("/batteryMonitor/device/") == true
+            return uri.path?.contains(path()) == true
         }
 
         fun fromURI(uri: Uri?): DeviceRoute? {
             val path = uri?.path ?: return null
-            return when (path.split("/batteryMonitor/device/").last()) {
+            return when (path.split(path()).last()) {
                 "phone" -> Phone
                 "watch" -> Watch
                 "extra/1" -> DeviceOne
@@ -123,18 +131,26 @@ data class SharedDevice(
     var batteryLevel: Int?,
     val deviceType: DeviceType,
 ) : Parcelable {
+
+
     /**
      * @param deviceType The type of device
      *
      * Creates a new SharedDevice for the current device
      */
-    constructor(deviceType: DeviceType, name: String = Build.PRODUCT) : this(0, name, 100, deviceType)
+    constructor(deviceType: DeviceType, name: String = Build.PRODUCT) : this(
+        0,
+        name,
+        100,
+        deviceType
+    )
 
     fun batteryLevelOrZero() = batteryLevel ?: 0
 
     fun batteryLevelOutOf100() = batteryLevelOrZero() / 100f
+
     @SuppressLint("VisibleForTests")
-    fun putDevice( dataClient: DataClient, deviceRoute: DeviceRoute) {
+    fun putDevice(dataClient: DataClient, deviceRoute: DeviceRoute) {
         Log.d(TAG, "putDevice: $this with path: $deviceRoute")
         val putDataMapReq = PutDataMapRequest.create(deviceRoute.toString())
         val parcel = Parcel.obtain()
@@ -150,6 +166,7 @@ data class SharedDevice(
 
     companion object {
         const val TAG = "SharedDevice"
+
         @SuppressLint("VisibleForTests")
         fun noDevice(dataClient: DataClient, deviceRoute: DeviceRoute) {
 
@@ -157,6 +174,7 @@ data class SharedDevice(
             val putDataMapReq = PutDataMapRequest.create(deviceRoute.toString())
             dataClient.putDataItem(putDataMapReq.asPutDataRequest())
         }
+
         @SuppressLint("VisibleForTests")
         fun fromDataItem(
             dataItem: DataItem,

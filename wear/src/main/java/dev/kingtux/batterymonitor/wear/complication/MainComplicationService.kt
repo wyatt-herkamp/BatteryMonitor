@@ -20,10 +20,15 @@ import dev.kingtux.batterymonitor.wear.presentation.MainActivity
 import dev.kingtux.batterymonitor.SharedDevice
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainComplicationService : SuspendingComplicationDataSourceService() {
-    @Inject
-    lateinit var currentBattery: Devices
+    var currentBattery: Devices = Devices()
+
+    init {
+        currentBattery.updateOccurred = {
+            forceComplicationUpdate(applicationContext)
+        }
+    }
+
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         when (type) {
 
@@ -48,6 +53,16 @@ class MainComplicationService : SuspendingComplicationDataSourceService() {
                 return null;
             }
         }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        currentBattery.onCreate(applicationContext)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        currentBattery.onDestroy(applicationContext)
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData {

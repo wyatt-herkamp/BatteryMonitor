@@ -6,6 +6,7 @@
 
 package dev.kingtux.batterymonitor.wear.presentation
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,17 +44,30 @@ import dev.kingtux.batterymonitor.wear.TRACK_BACKGROUND
 import dev.kingtux.batterymonitor.wear.getColor
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var currentBattery: Devices
+    private var currentBattery: Devices = Devices()
+    init {
+        currentBattery.updateOccurred = {
+            runOnUiThread {
+                setContent {
+                    WearApp(currentBattery)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        currentBattery.onCreate(applicationContext)
 
         setContent {
             WearApp(currentBattery)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        currentBattery.onDestroy(applicationContext)
     }
 }
 

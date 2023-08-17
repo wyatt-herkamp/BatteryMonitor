@@ -2,31 +2,37 @@ package dev.kingtux.batterymonitor.wear
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
+import com.google.android.gms.wearable.DataClient
+import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.Wearable
 import dev.kingtux.batterymonitor.DeviceRoute
 import dev.kingtux.batterymonitor.DeviceType
+import dev.kingtux.batterymonitor.LocalBatteryMonitor
 import dev.kingtux.batterymonitor.SharedDevice
 import dev.kingtux.batterymonitor.wear.tile.MainTileService
 import kotlinx.parcelize.parcelableCreator
 
-data class Devices(
+class Devices(
     var watch: SharedDevice,
     var phone: SharedDevice?,
     var deviceOne: SharedDevice?,
     var deviceTwo: SharedDevice?
-) {
-    constructor(context: Context) : this(
+) : LocalBatteryMonitor(), DataClient.OnDataChangedListener {
+    lateinit var updateOccurred: () -> Unit
+
+    constructor() : this(
         SharedDevice(DeviceType.Watch),
         null,
         null,
         null
-    ) {
-        updateAllFromDataStore(context)
+    )
+    override fun toString(): String {
+        return "Devices(watch=$watch, phone=$phone, deviceOne=$deviceOne, deviceTwo=$deviceTwo)"
     }
-
 
     private fun putDeviceByIndex(route: DeviceRoute, device: SharedDevice?) {
         Log.d("Devices", "putDeviceByIndex: $route Value: $device")
@@ -89,8 +95,8 @@ data class Devices(
             }
             it.release()
             Log.d(TAG, "New Devices: $this")
+            updateOccurred()
         }
-        MainTileService.forceTileUpdate(context)
     }
 
     fun getComplicationDevice(): SharedDevice? {
@@ -119,5 +125,43 @@ data class Devices(
 
     companion object {
         const val TAG = "Devices"
+    }
+
+    override fun updateBatteryLevel(context: Context, currentBattery: Int) {
+        if (watch.batteryLevel != currentBattery) {
+            watch.batteryLevel = currentBattery
+            // TODO: Update the Watch DataLayer
+            updateOccurred()
+        }
+    }
+
+    fun onCreate(context: Context) {
+        registerLocalMonitor(context)
+        Wearable.getDataClient(context)
+            .addListener(this, Uri.parse("wear://*/batteryMonitor/device/"), 0)
+        updateAllFromDataStore(context)
+    }
+
+    fun onDestroy(context: Context) {
+        unregisterLocalMonitor(context)
+        Wearable.getDataClient(context).removeListener(this)
+    }
+
+    @SuppressLint("VisibleForTests")
+    override fun onDataChanged(dataEvents: DataEventBuffer) {
+        Log.d(TAG, "onDataChanged: $dataEvents")
+
+        val dataEventsValues = dataEvents.map { it.dataItem };
+        for (it in dataEventsValues) {
+            val frozenDataItem = it.freeze();
+
+            Log.d(TAG, "onDataChanged: ${frozenDataItem.uri}")
+            if (frozenDataItem.uri.path?.startsWith("/batteryMonitor/device/") == true) {
+                updateFromDataItem(frozenDataItem)
+            }
+        }
+        dataEvents.release();
+        updateOccurred()
+        Log.d(TAG, "onDataChanged: $this")
     }
 }

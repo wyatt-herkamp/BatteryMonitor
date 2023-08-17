@@ -23,15 +23,6 @@
             android:name="com.google.android.wearable.standalone"
             android:value="false" />
         <service
-            android:name=".BatteryLevelGetter"
-            android:exported="true">
-            <intent-filter>
-                <!-- listeners receive events that match the action and data filters -->
-                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
-                <data android:scheme="wear" android:host="*" android:pathPrefix="/batteryMonitor" />
-            </intent-filter>
-        </service>
-        <service
             android:name=".tile.MainTileService"
             android:exported="true"
             android:label="@string/tile_label"

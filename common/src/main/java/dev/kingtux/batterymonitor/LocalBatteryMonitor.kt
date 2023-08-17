@@ -6,17 +6,26 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 
-data class LocalBatteryMonitor(
-    val updateBatteryLevel: (Int) -> Unit
-) : BroadcastReceiver() {
+abstract class LocalBatteryMonitor : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        val currentBattery: Int = intent?.getIntExtra("level", -1) ?: -1
+        if (intent?.action != Intent.ACTION_BATTERY_CHANGED) {
+            return
+        }
+        if (context == null) {
+            return
+        }
+        val currentBattery: Int = intent.getIntExtra("level", -1)
         Log.d(TAG, "Local Device Battery: $currentBattery")
-        updateBatteryLevel(currentBattery)
+        updateBatteryLevel(context, currentBattery)
     }
 
-    fun register(context: Context){
+    abstract fun updateBatteryLevel(context: Context, currentBattery: Int)
+
+    fun registerLocalMonitor(context: Context) {
         context.registerReceiver(this, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+    }
+    fun unregisterLocalMonitor(context: Context) {
+        context.unregisterReceiver(this)
     }
     companion object {
         const val TAG = "BatteryMonitor-LocalMonitor"
